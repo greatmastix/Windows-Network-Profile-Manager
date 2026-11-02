@@ -1,3 +1,4 @@
+using NetworkProfiles.Core.Execution;
 using NetworkProfiles.Core.Models;
 using NetworkProfiles.Core.Validation;
 
@@ -13,14 +14,24 @@ public static class NetshCommandBuilder
     /// <remarks>
     /// Normally called with a profile that passed <see cref="ProfileValidator"/>.
     /// Entries that do not parse are skipped rather than passed to netsh.
+    /// <paramref name="current"/> is the adapter's state right before applying, when known.
     /// </remarks>
-    public static IReadOnlyList<string[]> Build(NetworkProfile profile, int interfaceIndex)
+    public static IReadOnlyList<string[]> Build(NetworkProfile profile, int interfaceIndex, InterfaceState? current = null)
     {
         var commands = new List<string[]>();
         var name = $"name={interfaceIndex}";
 
         switch (profile.Ipv4.Mode)
         {
+            case ConfigMode.Automatic when current is { IsDhcpEnabled: true }:
+                // netsh refuses "source=dhcp" when DHCP is already on ("DHCP is already enabled"), even if
+                // static addresses are left over (Settings then shows "Manual"). Remove those instead; the
+                // first delete also drops static default gateways.
+                for (var i = 0; i < current.ManualAddresses.Count; i++)
+                    commands.Add(i == 0
+                        ? ["interface", "ipv4", "delete", "address", name, $"address={current.ManualAddresses[i]}", "gateway=all"]
+                        : ["interface", "ipv4", "delete", "address", name, $"address={current.ManualAddresses[i]}"]);
+                break;
             case ConfigMode.Automatic:
                 commands.Add(["interface", "ipv4", "set", "address", name, "source=dhcp"]);
                 break;

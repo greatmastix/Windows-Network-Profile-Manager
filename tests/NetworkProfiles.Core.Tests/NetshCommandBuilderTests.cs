@@ -1,12 +1,44 @@
 using NetworkProfiles.Core.Commands;
+using NetworkProfiles.Core.Execution;
 using NetworkProfiles.Core.Models;
 
 namespace NetworkProfiles.Core.Tests;
 
 public class NetshCommandBuilderTests
 {
-    private static string[] Lines(NetworkProfile profile, int index = 12) =>
-        NetshCommandBuilder.Build(profile, index).Select(args => string.Join(' ', args)).ToArray();
+    private static string[] Lines(NetworkProfile profile, int index = 12, InterfaceState? current = null) =>
+        NetshCommandBuilder.Build(profile, index, current).Select(args => string.Join(' ', args)).ToArray();
+
+    [Fact]
+    public void AutomaticProfile_WhenStaticIsOn_SwitchesToDhcp()
+    {
+        Assert.Equal(
+        [
+            "interface ipv4 set address name=12 source=dhcp",
+            "interface ipv4 set dnsservers name=12 source=dhcp",
+        ], Lines(new NetworkProfile(), current: new InterfaceState(IsDhcpEnabled: false, ManualAddresses: ["10.0.0.5"])));
+    }
+
+    [Fact]
+    public void AutomaticProfile_WhenDhcpIsAlreadyOn_DeletesLeftoverStaticAddresses()
+    {
+        // netsh rejects "source=dhcp" here ("DHCP is already enabled on this interface").
+        Assert.Equal(
+        [
+            "interface ipv4 delete address name=12 address=10.188.151.254 gateway=all",
+            "interface ipv4 delete address name=12 address=10.188.151.253",
+            "interface ipv4 set dnsservers name=12 source=dhcp",
+        ], Lines(new NetworkProfile(),
+            current: new InterfaceState(IsDhcpEnabled: true, ManualAddresses: ["10.188.151.254", "10.188.151.253"])));
+    }
+
+    [Fact]
+    public void AutomaticProfile_WhenDhcpIsAlreadyOnAndClean_OnlyResetsDns()
+    {
+        Assert.Equal(
+            ["interface ipv4 set dnsservers name=12 source=dhcp"],
+            Lines(new NetworkProfile(), current: new InterfaceState(IsDhcpEnabled: true, ManualAddresses: [])));
+    }
 
     [Fact]
     public void AutomaticProfile_UsesDhcpForAddressAndDns()
