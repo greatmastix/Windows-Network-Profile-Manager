@@ -26,6 +26,14 @@ public partial class App : Application
         base.OnStartup(e);
         EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler(OnWindowLoaded));
 
+        // Without the service, adapter changes need administrator rights: restart elevated (one UAC prompt).
+        // Done before the single-instance check, so the elevated copy isn't mistaken for a second one.
+        if (!AdapterSettingsWriter.IsElevated && !Elevation.IsServiceInstalled && Elevation.TryRestartElevated(e.Args))
+        {
+            Shutdown();
+            return;
+        }
+
         // Only one copy runs; starting it again brings the existing window forward.
         _singleInstance = new Mutex(initiallyOwned: true, InstanceName, out var isFirst);
         _showSignal = new EventWaitHandle(false, EventResetMode.AutoReset, InstanceName + ".Show");

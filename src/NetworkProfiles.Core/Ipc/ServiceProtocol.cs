@@ -10,6 +10,9 @@ namespace NetworkProfiles.Core.Ipc;
 /// </summary>
 public static class ServiceProtocol
 {
+    /// <summary>Windows service name, as installed by the MSI and scripts/install-service.ps1.</summary>
+    public const string ServiceName = "NetworkProfiles";
+
     public const string PipeName = "NetworkProfiles.Service.v1";
 
     /// <summary>Largest request the service reads, to bound memory use.</summary>
