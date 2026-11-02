@@ -28,4 +28,4 @@ if ($LASTEXITCODE) { throw 'Publishing the service failed.' }
 dotnet build installer -c Release @versionArgs
 if ($LASTEXITCODE) { throw 'Building the installer failed.' }
 
-Get-ChildItem publish/*.exe, installer/bin/x64/Release/*.msi | Format-Table Name, Length
+Get-ChildItem publish/*.exe, installer/bin/Release/*.msi | Format-Table Name, Length

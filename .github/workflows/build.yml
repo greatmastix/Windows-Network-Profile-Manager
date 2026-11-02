@@ -54,7 +54,7 @@ jobs:
           name: NetworkProfiles-${{ steps.version.outputs.value || github.sha }}
           path: |
             publish/*.exe
-            installer/bin/x64/Release/*.msi
+            installer/bin/Release/*.msi
           if-no-files-found: error
 
   release:

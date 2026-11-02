@@ -74,7 +74,7 @@ The exe is not code-signed, so Windows SmartScreen may warn on first start.
 
 On Windows, `.\build-release.ps1` runs the tests, publishes the app and the
 service as single files into `publish/`, and builds
-`installer/bin/x64/Release/NetworkProfilesSetup.msi` (WiX Toolset 6, restored
+`installer/bin/Release/NetworkProfilesSetup.msi` (WiX Toolset 6, restored
 automatically by `dotnet build`). The MSI installs both into
 `Program Files\Network Profiles`, registers and starts the service, and adds a
 Start menu shortcut. Pass `-Version 1.2.3` to stamp the executables and the
