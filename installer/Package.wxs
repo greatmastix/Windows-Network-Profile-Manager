@@ -1,16 +1,17 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <!-- Bump Version for every release; MajorUpgrade then replaces the old install. -->
+  <!-- Version comes from ProductVersion in the .wixproj (CI sets it from the release tag);
+       raise it for every release so MajorUpgrade replaces the old install. -->
   <Package Name="Network Profiles"
            Manufacturer="Mastix"
-           Version="1.0.0"
+           Version="$(var.ProductVersion)"
            UpgradeCode="{4C8EAD5B-41FF-42F0-B58B-9522E5CC20F3}"
            Scope="perMachine">
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of Network Profiles is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
-    <Icon Id="AppIcon" SourceFile="$(var.IconFile)" />
-    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Icon Id="AppIcon.ico" SourceFile="$(var.IconFile)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="Network Profiles" />
@@ -18,10 +19,16 @@
 
     <Feature Id="Main" Title="Network Profiles">
       <Component Id="App" Directory="INSTALLFOLDER">
-        <File Id="AppExe" Source="$(var.PayloadDir)NetworkProfiles.exe" KeyPath="yes">
-          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Network Profiles"
-                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />
-        </File>
+        <File Id="AppExe" Source="$(var.PayloadDir)NetworkProfiles.exe" KeyPath="yes" />
+      </Component>
+
+      <!-- Plain (non-advertised) shortcut in its own component. An advertised one needs an icon
+           named *.exe (ICE50); a plain one needs an HKCU registry value as its key path (ICE43/ICE57). -->
+      <Component Id="StartMenuShortcut" Directory="ProgramMenuFolder">
+        <Shortcut Id="StartMenuShortcut" Name="Network Profiles" Target="[INSTALLFOLDER]NetworkProfiles.exe"
+                  WorkingDirectory="INSTALLFOLDER" Icon="AppIcon.ico" />
+        <RegistryValue Root="HKCU" Key="Software\Mastix\Network Profiles" Name="StartMenuShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
       </Component>
 
       <!-- Background service that changes adapter settings, so the app runs without admin rights. -->
