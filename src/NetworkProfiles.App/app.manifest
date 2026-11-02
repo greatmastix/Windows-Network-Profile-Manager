@@ -4,10 +4,9 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <!-- Always starts as administrator (UAC prompt), so adapter changes work even
-             without the Network Profiles service. Windows does not start such apps from
-             the per-user Run key, so "start at sign-in" has no effect. -->
-        <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
+        <!-- Runs as the signed-in user; the installed service changes adapter settings.
+             Without the service, the app restarts itself as administrator (App.OnStartup). -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>

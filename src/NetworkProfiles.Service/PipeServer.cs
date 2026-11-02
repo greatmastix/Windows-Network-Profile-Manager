@@ -12,7 +12,7 @@ namespace NetworkProfiles.Service;
 /// </summary>
 public sealed class PipeServer(RequestHandler handler, ILogger<PipeServer> logger) : BackgroundService
 {
-    public const string ServiceName = "NetworkProfiles";
+    public const string ServiceName = ServiceProtocol.ServiceName;
 
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(60);
 

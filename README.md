@@ -33,28 +33,29 @@ switch only the proxy.
   in, and a restore for an unplugged adapter waits until it is back. Only one rule is active at a time
   (first in the list wins), and applying a profile by hand while a rule is
   active means nothing is undone when the program exits. The app watches
-  programs, so it has to be running. (The "start at sign-in" option has no
-  effect while the app requests administrator rights; see below.)
+  programs, so it has to be running; it can start in the tray at sign-in.
 
 ## How it is put together
 
-The app asks for administrator rights (a UAC prompt) every time it starts, and
-then applies adapter settings itself when the service is missing. Because
-Windows does not start such apps from the per-user startup list, the "start at
-sign-in" option currently does nothing.
-
-Changing adapter addresses needs administrator rights, so a small Windows service (`NetworkProfiles.Service`,
+The app runs as the signed-in user. Changing adapter addresses needs
+administrator rights, so a small Windows service (`NetworkProfiles.Service`,
 running as LocalSystem) does that part: the app sends it the settings over a
 local named pipe, and the service builds and runs the netsh commands itself.
 The pipe only accepts interactive (signed-in) users, administrators and
 SYSTEM, and rejects network logons. The proxy is per user, so the app sets it
-itself. Without the service, the elevated app runs netsh directly.
+itself.
+
+Without the service (the exe started on its own, not installed), the app
+restarts itself as administrator when it starts, so there is one UAC prompt,
+and then runs netsh directly. If the prompt is declined, it keeps running
+without those rights and says the service is missing.
 
 ## Requirements
 
 - Windows 10 or 11
 - .NET 10 SDK to build
-- An administrator account (the app asks for elevation when it starts).
+- To change adapter settings, either the service is installed (the MSI does
+  this) or administrator rights when the app starts.
 
 ## Build and run
 
