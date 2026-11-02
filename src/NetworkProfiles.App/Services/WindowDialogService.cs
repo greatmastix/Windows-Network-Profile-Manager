@@ -3,20 +3,18 @@ using Microsoft.Win32;
 
 namespace NetworkProfiles.App.Services;
 
-public sealed class MessageBoxDialogService : IDialogService
+/// <summary>Questions as themed app windows; file pickers are the standard Windows ones.</summary>
+public sealed class WindowDialogService : IDialogService
 {
     private static Window? Owner =>
         Application.Current.MainWindow is { IsVisible: true } window ? window : null;
 
-    public bool Confirm(string message, string title) =>
-        (Owner is { } owner
-            ? MessageBox.Show(owner, message, title, MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel)
-            : MessageBox.Show(message, title, MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel))
-        == MessageBoxResult.OK;
+    public bool Confirm(string message, string title) => ShowOwned(new ConfirmWindow(message, title));
 
-    public bool AskKeepChanges(string message, TimeSpan timeout)
+    public bool AskKeepChanges(string message, TimeSpan timeout) => ShowOwned(new KeepChangesWindow(message, timeout));
+
+    private static bool ShowOwned(Window dialog)
     {
-        var dialog = new KeepChangesWindow(message, timeout);
         if (Owner is { } owner)
             dialog.Owner = owner;
         else

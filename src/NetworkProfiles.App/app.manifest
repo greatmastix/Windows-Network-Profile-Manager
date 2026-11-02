@@ -4,9 +4,10 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <!-- Runs as the signed-in user. Adapter changes go through the Network Profiles
-             service; without it, start the app as administrator to apply directly. -->
-        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+        <!-- Always starts as administrator (UAC prompt), so adapter changes work even
+             without the Network Profiles service. Windows does not start such apps from
+             the per-user Run key, so "start at sign-in" has no effect. -->
+        <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>
