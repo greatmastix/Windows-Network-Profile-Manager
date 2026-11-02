@@ -3,9 +3,12 @@ name: Build
 on:
   push:
     branches: [main]
-    tags: ['v*.*.*']
   pull_request:
   workflow_dispatch:
+  # Publishing a release on GitHub (with a tag like v1.2.3) builds that version
+  # and attaches the files to the release.
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -33,13 +36,14 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.wixproj') }}
           restore-keys: nuget-${{ runner.os }}-
 
-      # A tag like v1.2.3 becomes version 1.2.3; other builds keep the .wixproj default.
+      # A release tag like v1.2.3 becomes version 1.2.3; other builds keep the .wixproj default.
       - name: Work out version
         id: version
         shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          $v = ''
-          if ($env:GITHUB_REF_TYPE -eq 'tag') { $v = $env:GITHUB_REF_NAME -replace '^v', '' }
+          $v = $env:RELEASE_TAG -replace '^v', ''
           "value=$v" >> $env:GITHUB_OUTPUT
 
       - name: Test, publish and build installer
@@ -58,7 +62,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: github.ref_type == 'tag'
+    if: github.event_name == 'release'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -69,12 +73,12 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Create GitHub release
+      - name: Attach files to the release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
+          gh release upload "$RELEASE_TAG" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Network Profiles ${GITHUB_REF_NAME#v}" \
-            --generate-notes \
+            --clobber \
             $(find dist -type f \( -name '*.exe' -o -name '*.msi' \))
