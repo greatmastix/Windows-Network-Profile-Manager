@@ -1,8 +1,9 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <!-- Bump Version for every release; MajorUpgrade then replaces the old install. -->
+  <!-- Version comes from ProductVersion in the .wixproj (CI sets it from the release tag);
+       raise it for every release so MajorUpgrade replaces the old install. -->
   <Package Name="Network Profiles"
            Manufacturer="Mastix"
-           Version="1.0.0"
+           Version="$(var.ProductVersion)"
            UpgradeCode="{4C8EAD5B-41FF-42F0-B58B-9522E5CC20F3}"
            Scope="perMachine">
 

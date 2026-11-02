@@ -5,8 +5,10 @@
   <PropertyGroup>
     <OutputName>NetworkProfilesSetup</OutputName>
     <InstallerPlatform>x64</InstallerPlatform>
+    <!-- Override with -p:ProductVersion=1.2.3 (the CI workflow does this for v* tags). -->
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
     <PayloadDir>$(MSBuildThisFileDirectory)..\publish\</PayloadDir>
-    <DefineConstants>PayloadDir=$(PayloadDir);IconFile=$(MSBuildThisFileDirectory)..\src\NetworkProfiles.App\Assets\app.ico</DefineConstants>
+    <DefineConstants>ProductVersion=$(ProductVersion);PayloadDir=$(PayloadDir);IconFile=$(MSBuildThisFileDirectory)..\src\NetworkProfiles.App\Assets\app.ico</DefineConstants>
   </PropertyGroup>
 
 </Project>

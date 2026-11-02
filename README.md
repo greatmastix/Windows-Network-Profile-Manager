@@ -77,8 +77,28 @@ service as single files into `publish/`, and builds
 `installer/bin/x64/Release/NetworkProfilesSetup.msi` (WiX Toolset 6, restored
 automatically by `dotnet build`). The MSI installs both into
 `Program Files\Network Profiles`, registers and starts the service, and adds a
-Start menu shortcut. Raise `Version` in `installer/Package.wxs` for each
-release so upgrades replace the old install. WiX only runs on Windows.
+Start menu shortcut. Pass `-Version 1.2.3` to stamp the executables and the
+MSI (otherwise `ProductVersion` in `installer/NetworkProfiles.Installer.wixproj`
+is used); raise it for each release so upgrades replace the old install. WiX
+only runs on Windows.
+
+### Automated builds
+
+`.github/workflows/build.yml` runs `build-release.ps1` on a Windows runner for
+every push to `main`, every pull request, and on demand (*Actions > Build > Run
+workflow*). The two exe files and the MSI are attached to each run as a
+downloadable artifact.
+
+To publish a release, push a version tag:
+
+```
+git tag v1.2.3
+git push origin v1.2.3
+```
+
+The workflow builds version 1.2.3 and creates a GitHub release for the tag with
+`NetworkProfiles.exe`, `NetworkProfiles.Service.exe` and
+`NetworkProfilesSetup.msi` attached.
 
 Without the MSI, `scripts/install-service.ps1` (run as administrator next to
 the two exe files) copies them to Program Files and registers the service;
