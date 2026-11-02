@@ -19,12 +19,16 @@
 
     <Feature Id="Main" Title="Network Profiles">
       <Component Id="App" Directory="INSTALLFOLDER">
-        <File Id="AppExe" Source="$(var.PayloadDir)NetworkProfiles.exe" KeyPath="yes">
-          <!-- Plain (non-advertised) shortcut: an advertised one needs an icon named *.exe (ICE50)
-               and triggers an installer self-repair check on every launch. -->
-          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Network Profiles"
-                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon.ico" Advertise="no" />
-        </File>
+        <File Id="AppExe" Source="$(var.PayloadDir)NetworkProfiles.exe" KeyPath="yes" />
+      </Component>
+
+      <!-- Plain (non-advertised) shortcut in its own component. An advertised one needs an icon
+           named *.exe (ICE50); a plain one needs an HKCU registry value as its key path (ICE43/ICE57). -->
+      <Component Id="StartMenuShortcut" Directory="ProgramMenuFolder">
+        <Shortcut Id="StartMenuShortcut" Name="Network Profiles" Target="[INSTALLFOLDER]NetworkProfiles.exe"
+                  WorkingDirectory="INSTALLFOLDER" Icon="AppIcon.ico" />
+        <RegistryValue Root="HKCU" Key="Software\Mastix\Network Profiles" Name="StartMenuShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
       </Component>
 
       <!-- Background service that changes adapter settings, so the app runs without admin rights. -->
