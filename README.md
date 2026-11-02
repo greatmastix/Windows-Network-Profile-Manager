@@ -33,25 +33,28 @@ switch only the proxy.
   in, and a restore for an unplugged adapter waits until it is back. Only one rule is active at a time
   (first in the list wins), and applying a profile by hand while a rule is
   active means nothing is undone when the program exits. The app watches
-  programs, so it has to be running; it can start in the tray at sign-in.
+  programs, so it has to be running. (The "start at sign-in" option has no
+  effect while the app requests administrator rights; see below.)
 
 ## How it is put together
 
-The app runs as the signed-in user. Changing adapter addresses needs
-administrator rights, so a small Windows service (`NetworkProfiles.Service`,
+The app asks for administrator rights (a UAC prompt) every time it starts, and
+then applies adapter settings itself when the service is missing. Because
+Windows does not start such apps from the per-user startup list, the "start at
+sign-in" option currently does nothing.
+
+Changing adapter addresses needs administrator rights, so a small Windows service (`NetworkProfiles.Service`,
 running as LocalSystem) does that part: the app sends it the settings over a
 local named pipe, and the service builds and runs the netsh commands itself.
 The pipe only accepts interactive (signed-in) users, administrators and
 SYSTEM, and rejects network logons. The proxy is per user, so the app sets it
-itself. Without the service, the app can still apply profiles when started as
-administrator.
+itself. Without the service, the elevated app runs netsh directly.
 
 ## Requirements
 
 - Windows 10 or 11
 - .NET 10 SDK to build
-- To change adapter settings, either the service is installed or the app is
-  started as administrator.
+- An administrator account (the app asks for elevation when it starts).
 
 ## Build and run
 
@@ -108,7 +111,8 @@ is useful for CI; the app itself only runs on Windows.
 | Project | Purpose |
 | --- | --- |
 | `src/NetworkProfiles.Core` | Profile model, validation, netsh command builder and runner, JSON storage, service protocol, auto-switch rules. No Windows-only APIs. |
-| `src/NetworkProfiles.App` | WPF app (Fluent theme, MVVM with CommunityToolkit.Mvvm), tray icon, adapter discovery, proxy API, service client. |
+| `src/NetworkProfiles.App` | WPF app (Fluent dark theme in a near-black and red palette, MVVM with CommunityToolkit.Mvvm), tray icon, adapter discovery, proxy API, service client. |
+| `tools` | `make_icon.py` draws `Assets/app.ico`; `make_theme.py` generates `Themes/DarkRed.xaml` from WPF's Fluent `Dark.xaml`. Both need Python 3 (the icon also needs Pillow). |
 | `src/NetworkProfiles.Service` | Windows service that applies adapter settings for the app. |
 | `installer` | WiX MSI installer for the app and the service. |
 | `tests/NetworkProfiles.Core.Tests` | xUnit tests for the Core library. |

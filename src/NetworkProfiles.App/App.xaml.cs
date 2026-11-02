@@ -1,4 +1,6 @@
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using NetworkProfiles.App.Services;
 using NetworkProfiles.App.ViewModels;
@@ -22,6 +24,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler(OnWindowLoaded));
 
         // Only one copy runs; starting it again brings the existing window forward.
         _singleInstance = new Mutex(initiallyOwned: true, InstanceName, out var isFirst);
@@ -46,7 +49,7 @@ public partial class App : Application
             new AdapterService(),
             adapterWriter,
             new ProfileApplier(adapterWriter, new ProxyService()),
-            new MessageBoxDialogService());
+            new WindowDialogService());
 
         _window = new MainWindow(_viewModel);
         MainWindow = _window;
@@ -87,6 +90,19 @@ public partial class App : Application
             _window.WindowState = WindowState.Normal;
         _window.Activate();
     }
+
+    /// <summary>Title bar in the page colour with a matching border (Windows 11; ignored elsewhere), as in LTC-MTC.</summary>
+    private static void OnWindowLoaded(object sender, RoutedEventArgs e)
+    {
+        var hwnd = new WindowInteropHelper((Window)sender).Handle;
+        int dark = 1, caption = 0x0e0c0c, border = 0x2f2a2a;   // COLORREF is 0x00BBGGRR
+        DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int));      // DWMWA_USE_IMMERSIVE_DARK_MODE
+        DwmSetWindowAttribute(hwnd, 35, ref caption, sizeof(int));   // DWMWA_CAPTION_COLOR
+        DwmSetWindowAttribute(hwnd, 34, ref border, sizeof(int));    // DWMWA_BORDER_COLOR
+    }
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(nint hwnd, int attribute, ref int value, int size);
 
     private void ExitApp()
     {

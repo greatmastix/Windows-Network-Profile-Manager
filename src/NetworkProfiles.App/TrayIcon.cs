@@ -15,7 +15,7 @@ public sealed class TrayIcon : IDisposable
     private readonly Action _showRules;
     private readonly Action _exit;
     private readonly Forms.NotifyIcon _icon;
-    private readonly Forms.ContextMenuStrip _menu = new();
+    private readonly Forms.ContextMenuStrip _menu = new() { Renderer = new DarkMenuRenderer() };
 
     public TrayIcon(MainViewModel viewModel, Action showWindow, Action showRules, Action exit)
     {
