@@ -89,16 +89,12 @@ every push to `main`, every pull request, and on demand (*Actions > Build > Run
 workflow*). The two exe files and the MSI are attached to each run as a
 downloadable artifact.
 
-To publish a release, push a version tag:
-
-```
-git tag v1.2.3
-git push origin v1.2.3
-```
-
-The workflow builds version 1.2.3 and creates a GitHub release for the tag with
-`NetworkProfiles.exe`, `NetworkProfiles.Service.exe` and
-`NetworkProfilesSetup.msi` attached.
+To publish a release, create it on GitHub (*Releases > Draft a new release*),
+choose a new tag like `v1.2.3` on `main`, and publish it. The workflow then
+builds version 1.2.3 and attaches `NetworkProfiles.exe`,
+`NetworkProfiles.Service.exe` and `NetworkProfilesSetup.msi` to the release,
+usually within about five minutes. The tag must look like `v1.2.3`, or the build
+fails. Pushing a tag on its own does not build or release anything.
 
 Without the MSI, `scripts/install-service.ps1` (run as administrator next to
 the two exe files) copies them to Program Files and registers the service;
