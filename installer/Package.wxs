@@ -1,0 +1,45 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <!-- Bump Version for every release; MajorUpgrade then replaces the old install. -->
+  <Package Name="Network Profiles"
+           Manufacturer="Mastix"
+           Version="1.0.0"
+           UpgradeCode="{4C8EAD5B-41FF-42F0-B58B-9522E5CC20F3}"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Network Profiles is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon" SourceFile="$(var.IconFile)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Network Profiles" />
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="Network Profiles">
+      <Component Id="App" Directory="INSTALLFOLDER">
+        <File Id="AppExe" Source="$(var.PayloadDir)NetworkProfiles.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Network Profiles"
+                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />
+        </File>
+      </Component>
+
+      <!-- Background service that changes adapter settings, so the app runs without admin rights. -->
+      <Component Id="Service" Directory="INSTALLFOLDER">
+        <File Id="ServiceExe" Source="$(var.PayloadDir)NetworkProfiles.Service.exe" KeyPath="yes" />
+        <ServiceInstall Id="ServiceInstall"
+                        Name="NetworkProfiles"
+                        DisplayName="Network Profiles Service"
+                        Description="Applies IP address, gateway and DNS settings for the Network Profiles app."
+                        Type="ownProcess"
+                        Start="auto"
+                        ErrorControl="normal"
+                        Account="LocalSystem"
+                        Vital="yes" />
+        <ServiceControl Id="ServiceControl" Name="NetworkProfiles" Start="install" Stop="both" Remove="uninstall" Wait="yes" />
+      </Component>
+    </Feature>
+
+    <StandardDirectory Id="ProgramMenuFolder" />
+  </Package>
+</Wix>

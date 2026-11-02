@@ -1,0 +1,16 @@
+<Window x:Class="NetworkProfiles.App.KeepChangesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Keep these network settings?"
+        Width="440" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Topmost="True" ShowInTaskbar="True">
+    <StackPanel Margin="24">
+        <TextBlock Text="Keep these network settings?" FontSize="20" FontWeight="SemiBold" />
+        <TextBlock x:Name="MessageText" Margin="0,12,0,0" TextWrapping="Wrap" />
+        <TextBlock x:Name="CountdownText" Margin="0,12,0,0" Style="{StaticResource Caption}" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+            <Button Content="Keep changes" Click="OnKeep" IsDefault="True" Style="{DynamicResource AccentButtonStyle}" Padding="16,6" />
+            <Button Content="Revert" Click="OnRevert" IsCancel="True" Margin="8,0,0,0" Padding="16,6" />
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NetworkProfiles.App/NetworkProfiles.App.csproj" />
+    <Project Path="src/NetworkProfiles.Core/NetworkProfiles.Core.csproj" />
+    <Project Path="src/NetworkProfiles.Service/NetworkProfiles.Service.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NetworkProfiles.Core.Tests/NetworkProfiles.Core.Tests.csproj" />
+  </Folder>
+</Solution>

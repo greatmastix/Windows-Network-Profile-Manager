@@ -1,0 +1,12 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+
+  <!-- Builds NetworkProfilesSetup.msi from the single-file executables in ..\publish.
+       Publish both projects first, or run ..\build-release.ps1 which does everything. -->
+  <PropertyGroup>
+    <OutputName>NetworkProfilesSetup</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <PayloadDir>$(MSBuildThisFileDirectory)..\publish\</PayloadDir>
+    <DefineConstants>PayloadDir=$(PayloadDir);IconFile=$(MSBuildThisFileDirectory)..\src\NetworkProfiles.App\Assets\app.ico</DefineConstants>
+  </PropertyGroup>
+
+</Project>
