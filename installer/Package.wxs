@@ -10,8 +10,8 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version of Network Profiles is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
-    <Icon Id="AppIcon" SourceFile="$(var.IconFile)" />
-    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Icon Id="AppIcon.ico" SourceFile="$(var.IconFile)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="Network Profiles" />
@@ -20,8 +20,10 @@
     <Feature Id="Main" Title="Network Profiles">
       <Component Id="App" Directory="INSTALLFOLDER">
         <File Id="AppExe" Source="$(var.PayloadDir)NetworkProfiles.exe" KeyPath="yes">
+          <!-- Plain (non-advertised) shortcut: an advertised one needs an icon named *.exe (ICE50)
+               and triggers an installer self-repair check on every launch. -->
           <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Network Profiles"
-                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />
+                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon.ico" Advertise="no" />
         </File>
       </Component>
 
